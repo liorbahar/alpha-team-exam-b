@@ -37,6 +37,8 @@ const LoginPage: React.FC = ({ }) => {
        
     },[])
 
+    const onClick = () => {}
+
    
     return (
 
@@ -44,25 +46,22 @@ const LoginPage: React.FC = ({ }) => {
     <Card className={classes.root}>
         <CardContent>
             <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent:'center', marginTop:'3%' }}>
+            <div style={{ display: 'flex', marginTop:'3%'}}>
                 
                 
-                <div style={{ width: '30%', marginBottom: '1rem' }}>
+                <div style={{ width: '50%', marginBottom: '1rem'}}>
                     <span style={{ display: 'flex', justifyContent: 'flex-start' }}>First Name</span>
                     <div style={{ display: 'flex', justifyContent: 'center',  marginTop:'0.5%' }}>
                         <TextField style={{width:'100%'}} variant="outlined" />
                     </div>     
                 </div>
-
-                <div style={{ width: '30%', marginBottom: '1rem', marginLeft:'10%' }}>
+               
+                <div style={{ width: '50%', marginBottom: '1rem'}}>
                     <span style={{ display: 'flex', justifyContent: 'flex-start' }}>Last Name</span>
                     <div style={{ display: 'flex', justifyContent: 'center',  marginTop:'0.5%' }}>
                         <TextField style={{width:'100%'}} variant="outlined" />
                     </div>
                 </div>
-            
-
-                
             </div>
 
             <div style={{ marginBottom: '1rem'}}>
@@ -71,7 +70,14 @@ const LoginPage: React.FC = ({ }) => {
                     <TextField style={{width:'100%'}} variant="outlined" />
                 </div>
             </div>
+
+            
         </div>
+        <div style={{ display: 'flex', flexDirection: 'column',alignItems: 'center', marginTop:'3%' }}>
+                <Button onClick={onClick} style={{ width: '30%' }} variant="contained" color="primary">
+                    Send
+                </Button>
+            </div>
         
         </CardContent>
     </Card>
