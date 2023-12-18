@@ -29,12 +29,19 @@ export class ChatCallGateway implements OnGatewayConnection, OnGatewayDisconnect
     return payload
   }
 
+  @SubscribeMessage('closeChat')
+  async handleCloseCustumerChatEvent(@MessageBody() payload: any): Promise<any> {
+    this.logger.log(payload)
+    this.server.to(payload.roomName).emit('chat', payload)
+    return payload
+  }
+
   @SubscribeMessage('join_room')
   async handleSetClientDataEvent(@MessageBody() payload: {socketId: string ,roomName: string} ) {
     if (payload.socketId) {
       this.logger.log(`${payload.socketId} is joining ${payload.roomName}`)
       await this.server.in(payload.socketId).socketsJoin(payload.roomName)
-      this.server.to(payload.roomName).emit('chat', payload)
+      // this.server.to(payload.roomName).emit('chat', payload)
     //   await this.userService.addUserToRoom(payload.roomName, payload.user)
     }
   }

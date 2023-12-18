@@ -1,100 +1,123 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import io from 'socket.io-client';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import ClearIcon from '@mui/icons-material/Clear';
+import { useNavigate, useParams } from "react-router-dom";
 
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
-const socket = io('http://localhost:3001');
+import socket from '../services/Socket';
 
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        marginTop:'3%'
+    },
+    card: {
         width:'50%',
         height:'80%',
         border: '1px solid black'
       },
-      bullet: {
-        display: 'inline-block',
-        margin: '0 2px',
-        transform: 'scale(0.8)',
-      },
-      title: {
-        fontSize: 14,
-      },
-      pos: {
-        marginBottom: 12,
-      },
+    closeButton: {
+        display: 'flex',
+        justifyContent: 'flex-end'
+    },
+    inputText: {
+        display: 'flex',
+        justifyContent: 'flex-start'
+    },
+    textArea: {
+        width: '100%',
+        minHeight: '30px',
+        display: 'flex',
+        justifyContent: 'center',
+        marginTop:'0.5%'
+    },
+    inputForm: {
+        width: '50%', 
+        marginBottom: '1rem'
+    },
+    textCounter: {
+        display: 'flex',
+        justifyContent: 'flex-end'
+    },
+    buttonDiv: {
+        display: 'flex',
+        justifyContent: 'center',
+        width: '50%',
+        marginTop:'3%'
+    },
+    button: {
+        width: '30%',
+        textTransform: 'none'
+    }
+
+
   }),
 );
 
 
 const ChatPage: React.FC = ({ }) => {
     const classes = useStyles();
-    const emailRef = useRef();
     const [message, setMessage] = useState('');
-
-    const data = { 
-        email: "lior.bahar1412@gmail.com",
-        name: "lior",
-        lastName: "bahar" 
-    }
-    const roomName =  `${data.email}-${data.name}-${data.lastName}`
-    
-    
+    const navigate = useNavigate();
+    const { roomName } = useParams();
+    const maxLength = 200;
 
     useEffect(() => {
-        socket.on('connect', () => {
-            socket.emit('join_room',{ socketId: socket.id, roomName: roomName})
-        });
-
-        socket.on('chat', (message: any) => {
-            console.log(message)
+        socket.on('closeChat', (message: any) => {
+            console.log("close chat");
+            onCloseChat();
         });
     },[])
 
     const onSendMessageClick = () => {
-        console.log((emailRef.current as any).value)
-        // socket.emit('chat',{ roomName: roomName, data: { name: 'lior' }})
+        socket.emit('chat',{ roomName: roomName, message: message })
     }
 
     const onChange = (event: any) => {
         setMessage(event.target.value);
     }
+
+    const onCloseChat = () => {
+        navigate('/login')
+    }
  
     return (
-    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop:'3%'}}>
-        <Card className={classes.root}>
+    <div className={classes.root}>
+        <Card className={classes.card}>
             <CardContent>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>    
-                <Button startIcon={<ClearIcon />}/>
+            <div className={classes.closeButton}>    
+                <Button onClick={onCloseChat} startIcon={<ClearIcon />}/>
             </div>
 
             
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop:'3%' }}>
-                    <div style={{ width: '50%', marginBottom: '1rem' }}>
-                        <span style={{ display: 'flex', justifyContent: 'flex-start' }}>Message</span>
-                        <div style={{ display: 'flex', justifyContent: 'center',  marginTop:'0.5%' }}>
-                            <TextareaAutosize
-                                maxLength={200}
-                                onChange={onChange}
-                                style={{ width: '100%', minHeight: '30px' }}
-                                minRows={7}
-                            />
-                        </div>
-
-                        <span style={{ display: 'flex', justifyContent: 'flex-end' }}>{message.length}/200</span>
+            <div className={classes.root}>
+                <div className={classes.inputForm}>
+                    <span className={classes.inputText}>Message</span>
+                    <div >
+                        <TextareaAutosize
+                            maxLength={maxLength}
+                            onChange={onChange}
+                            className={classes.textArea}
+                            minRows={7}
+                        />
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'center', width: '50%', marginTop:'3%' }}>
-                        <Button disabled={message.length === 0} onClick={onSendMessageClick} style={{ width: '30%' }} variant="contained" color="primary">
-                            Send
-                        </Button>
-                    </div>
+                    <span className={classes.textCounter}>{message.length}/{maxLength}</span>
                 </div>
+
+                <div className={classes.buttonDiv}>
+                    <Button disabled={message.length === 0} onClick={onSendMessageClick} className={classes.button} variant="contained" color="primary">
+                        Send
+                    </Button>
+                </div>
+            </div>
             </CardContent>
         </Card>
     </div>
