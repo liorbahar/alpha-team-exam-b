@@ -36,8 +36,8 @@ export class ChatCallGateway implements OnGatewayConnection, OnGatewayDisconnect
   @SubscribeMessage('closeChat')
   async handleCloseCustumerChatEvent(@MessageBody() event: any): Promise<any> {
     this.logger.log(event);
-    this.server.to(event.roomName).emit('closeChat', {});
-    await this.chatService.removeRoom(event.roomName)
+    this.server.to(event.roomName).emit('closeChat', { roomName: event.roomName, chatRoom: event.chatRoom });
+    await this.chatService.removeRoom(event.chatRoom)
     return event
   }
 
@@ -57,7 +57,6 @@ export class ChatCallGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   async handleDisconnect(socket: Socket): Promise<void> {
-    await this.chatService.removeRoom(socket.id)
     this.logger.log(`Socket disconnected: ${socket.id}`)
   }
 }

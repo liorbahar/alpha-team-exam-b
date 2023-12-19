@@ -7,7 +7,7 @@ export class ChatCallController {
     constructor(private chatService: ChatCallService) {}
 
     @Get()
-    public async getAllProcesses(): Promise<CustumerServiceEvent[]>{
+    public async getAllProcesses(): Promise<CustumerServiceEvent[]> {
         return await this.chatService.getRooms();
     }
 }

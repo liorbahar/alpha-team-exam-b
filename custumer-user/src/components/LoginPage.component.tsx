@@ -9,7 +9,7 @@ import Select from "@mui/material/Select";
 import { MenuItem, OutlinedInput } from '@material-ui/core';
 import { getAllAddresses } from '../services/Address.service';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import SocketContext from '../context/Socket.context';
+import SocketContext from '../context/SocketContext';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -78,7 +78,7 @@ const LoginPage: React.FC = ({ }) => {
         lastNameNameValid: true,
         emailValid: true,
     });
-    const { socket, joinRoom, disconnect } = useContext(SocketContext);
+    const { socket, joinRoom } = useContext(SocketContext);
 
     useEffect(() => {
         fetchAllAddress();
@@ -108,7 +108,7 @@ const LoginPage: React.FC = ({ }) => {
                     address: address
                 }
             }
-            joinRoom(eventData)
+            joinRoom(eventData);
             navigate(`/chat/${getRoomName()}`);
             setIsLoading(false);
         }  

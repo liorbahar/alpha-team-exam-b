@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useNavigate, useParams } from "react-router-dom";
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
-import SocketContext from '../context/Socket.context';
+import SocketContext from '../context/SocketContext';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -69,8 +69,7 @@ const ChatPage: React.FC = ({ }) => {
 
     useEffect(() => {
         socket.on('closeChat', (message: any) => {
-            console.log("close chat");
-            onCloseChat();
+            navigateHome();
         });
     },[])
 
@@ -78,11 +77,16 @@ const ChatPage: React.FC = ({ }) => {
         socket.emit('chat',{ roomName: roomName, message: message })    
     }
 
-    const onChange = (event: any) => {
+    const onTextChange = (event: any) => {
         setMessage(event.target.value);
     }
 
     const onCloseChat = () => {
+        socket.emit('closeChat', { roomName: 'custumerServiceRoom', chatRoom: roomName })
+        navigateHome()
+    }
+
+    const navigateHome = () => {
         navigate('/login')
     }
  
@@ -101,7 +105,7 @@ const ChatPage: React.FC = ({ }) => {
                     <div>
                         <TextareaAutosize
                             maxLength={maxLength}
-                            onChange={onChange}
+                            onChange={onTextChange}
                             className={classes.textArea}
                             minRows={7}
                         />

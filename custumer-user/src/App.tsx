@@ -1,7 +1,7 @@
 import React from 'react'
 import './App.css';
 import Router from './components/Router';
-import { SocketProvider } from './context/Socket.context';
+import { SocketProvider } from './context/SocketContext';
 
 function App() {
   return (

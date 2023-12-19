@@ -24,21 +24,13 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     });
   }
 
-  const disconnect = () => {
-    if (socket) {
-        socket.disconnect()
-    }
-  }
-
-  
-
   const joinRoom = (eventData: any) => {
     setUser(eventData)
     socket.emit('join_room', eventData);
   }
 
   return (
-    <SocketContext.Provider value={{socket, user, joinRoom, connect, disconnect}}>
+    <SocketContext.Provider value={{socket, user, joinRoom}}>
       {children}
     </SocketContext.Provider>
   );

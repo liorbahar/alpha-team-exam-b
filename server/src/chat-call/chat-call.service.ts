@@ -3,31 +3,31 @@ import { CustumerServiceEvent, Room, User } from './chat.interface';
 
 @Injectable()
 export class ChatCallService {
-    private rooms: Room[] = [];
+  private rooms: Room[] = []; 
 
   async addRoom(roomName: string, host: User): Promise<void> {
-    const room: number = await this.getRoomByName(roomName)
+    const room: number = this.getRoomByName(roomName)
     if (room === -1) {
         const room: Room = {
-            name: roomName,
-            startDate: new Date().toLocaleString(),
-            users: [host],
-            host: host,
-            messages: []
+          name: roomName,
+          startDate: new Date().toLocaleString(),
+          users: [host],
+          host: host,
+          messages: []
         }
-        await this.rooms.push(room);
+        this.rooms.push(room);
     }
   }
 
   async addMessageToRoom(roomName: string, message: string): Promise<void> {
-    const roomIndex: number = await this.getRoomByName(roomName);
+    const roomIndex: number = this.getRoomByName(roomName);
     if (roomIndex !== -1) {
         this.rooms[roomIndex].messages.push(message);
     }
   }
 
   async getRoomDetails(roomName: string): Promise<CustumerServiceEvent> {
-    const roomIndex: number = await this.getRoomByName(roomName);
+    const roomIndex: number = this.getRoomByName(roomName);
     if (roomIndex !== -1) {
         const room: Room = this.rooms[roomIndex];
         return this.parseRoom(room); 
@@ -36,14 +36,14 @@ export class ChatCallService {
   }
 
   async removeRoom(roomName: string): Promise<void> {
-    const findRoom: number = await this.getRoomByName(roomName);
+    const findRoom: number = this.getRoomByName(roomName);
     if (findRoom !== -1) {
       this.rooms = this.rooms.filter((room) => room.name !== roomName);
     }
   }
 
   async addUserToRoom(roomName: string, user: User): Promise<void> {
-    const roomIndex: number = await this.getRoomByName(roomName);
+    const roomIndex: number = this.getRoomByName(roomName);
     if (roomIndex === -1) {
         this.addRoom(roomName, user);
     } else {
@@ -68,7 +68,7 @@ export class ChatCallService {
     } 
   }
 
-  private async getRoomByName(roomName: string): Promise<number> {
+  private getRoomByName(roomName: string): number {
     const roomIndex: number = this.rooms.findIndex((room) => room?.name === roomName)
     return roomIndex
   }
