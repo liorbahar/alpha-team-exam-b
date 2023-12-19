@@ -11,6 +11,7 @@ import {
   import { Server, Socket } from 'socket.io'
 import { ChatCallService } from './chat-call.service';
 import { ChatEvent, CustumerServiceEvent, User } from './chat.interface';
+import Config from 'src/config';
 
 @WebSocketGateway({
     cors: {
@@ -29,7 +30,7 @@ export class ChatCallGateway implements OnGatewayConnection, OnGatewayDisconnect
     this.logger.log(event)  
     this.chatService.addMessageToRoom(event.roomName, event.message);
     const eventMessage: CustumerServiceEvent = await this.chatService.getRoomDetails(event.roomName);
-    this.server.to('custumerServiceRoom').emit('chat', eventMessage)
+    this.server.to(Config.custumerServiceRoom).emit('chat', eventMessage)
     return event
   }
 
