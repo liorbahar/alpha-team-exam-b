@@ -10,6 +10,8 @@ import Select from "@mui/material/Select";
 import { MenuItem, OutlinedInput } from '@material-ui/core';
 import { getAllAddresses } from '../services/Address.service';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import { Socket, io } from 'socket.io-client';
+import Config from '../Config';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -78,11 +80,17 @@ const LoginPage: React.FC = ({ }) => {
         lastNameNameValid: true,
         emailValid: true,
     });
-
+    const [socket, setSocket] = useState<Socket>()
 
 
     useEffect(() => {
+        const socket = io(Config.url);
+        setSocket(socket)
+        setSocket(socket);
         fetchAllAddress();
+        return () => {
+            socket.disconnect()
+        }
     },[])
 
     const fetchAllAddress = () => {
@@ -96,10 +104,9 @@ const LoginPage: React.FC = ({ }) => {
     }
 
     const onClick = () => {
-        const isvalidForm: boolean = validateForm()
+        const isvalidForm: boolean = validateForm();
         if (isvalidForm === true){
-            setIsLoading(true)
-           
+            setIsLoading(true);
             const eventData = {
                 socketId: socket.id,
                 roomName: getRoomName(),
@@ -108,13 +115,12 @@ const LoginPage: React.FC = ({ }) => {
                     lastName: lastNameRef.current.value,
                     email: emailRef.current.value,
                     address: address
+                }
             }
-        }
         socket.emit('join_room', eventData);
         navigate(`/chat/${getRoomName()}`);
         setIsLoading(false);
-        }
-        
+        }  
     }
 
     const validateForm = () => {
@@ -134,61 +140,55 @@ const LoginPage: React.FC = ({ }) => {
 
    
     return (
-
-    <div className={classes.root}>
-    <Card className={classes.card}>
-        <CardContent>
-            <div>
-            <div className={classes.personalData}>
-                <div className={classes.namesDiv}>
-                    <span className={classes.inputText}>First Name</span>
-                    <TextField error={!validations.firstNameValid} inputRef={firstNameRef} className={classes.textField} variant="outlined" />
-                </div>
-               
-                <div className={classes.namesDiv}>
-                    <span className={classes.inputText}>Last Name</span>
-                    <TextField error={!validations.lastNameNameValid} inputRef={lastNameRef} className={classes.textField} variant="outlined" />
-                </div>
-            </div>
-
-            <div className={classes.secondDetailsSpaceTop}>
-                <span className={classes.inputText}>Email</span>
-                <TextField error={!validations.emailValid} inputRef={emailRef} className={classes.textField} variant="outlined" />
-            </div>
-
-
-            <div className={classes.secondDetailsSpaceTop}>
-                <span className={classes.inputText}>Address</span>
-                <Select
-                    className={classes.select}
-                    onChange={handleSelectChange}
-                    input={<OutlinedInput margin='dense' classes={{ input: classes.input }} />}
-                    >
-                        {addresses.map((address: string, index: number) => {
-                            return (
-                                <MenuItem key={index} value={address} className={classes.option}>
-                                    {address}
-                                </MenuItem>
-                            )
-                        })}
-                </Select>
-            </div>
-            
-
-            
-        </div>
         <div className={classes.root}>
-            <Button onClick={onClick} className={classes.button} variant="contained" color="primary">
-              Start Chat
-            </Button>
+            <Card className={classes.card}>
+                <CardContent>
+                    <div>
+                        <div className={classes.personalData}>
+                            <div className={classes.namesDiv}>
+                                <span className={classes.inputText}>First Name</span>
+                                <TextField error={!validations.firstNameValid} inputRef={firstNameRef} className={classes.textField} variant="outlined" />
+                            </div>
+                        
+                            <div className={classes.namesDiv}>
+                                <span className={classes.inputText}>Last Name</span>
+                                <TextField error={!validations.lastNameNameValid} inputRef={lastNameRef} className={classes.textField} variant="outlined" />
+                            </div>
+                        </div>
+
+                        <div className={classes.secondDetailsSpaceTop}>
+                            <span className={classes.inputText}>Email</span>
+                            <TextField error={!validations.emailValid} inputRef={emailRef} className={classes.textField} variant="outlined" />
+                        </div>
+
+
+                        <div className={classes.secondDetailsSpaceTop}>
+                            <span className={classes.inputText}>Address</span>
+                            <Select
+                                className={classes.select}
+                                onChange={handleSelectChange}
+                                input={<OutlinedInput margin='dense' classes={{ input: classes.input }} />}
+                                >
+                                    {addresses.map((address: string, index: number) => {
+                                        return (
+                                            <MenuItem key={index} value={address} className={classes.option}>
+                                                {address}
+                                            </MenuItem>
+                                        )
+                                    })}
+                            </Select>
+                        </div>
+                    </div>
+                    <div className={classes.root}>
+                        <Button onClick={onClick} className={classes.button} variant="contained" color="primary">
+                        Start Chat
+                        </Button>
+                    </div>
+
+                    {isLoading && <LinearProgress className={classes.secondDetailsSpaceTop} color="secondary" />}
+                </CardContent>
+            </Card>
         </div>
-
-        {isLoading && <LinearProgress className={classes.secondDetailsSpaceTop} color="secondary" />}
-
-        
-        </CardContent>
-    </Card>
-</div>
     )
 };
 

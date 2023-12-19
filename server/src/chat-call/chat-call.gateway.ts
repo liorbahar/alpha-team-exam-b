@@ -9,8 +9,8 @@ import {
   import { Logger } from '@nestjs/common'
   
   import { Server, Socket } from 'socket.io'
-//   import { UserService } from '../user/user.service'
-import { Controller } from '@nestjs/common';
+import { ChatCallService } from './chat-call.service';
+import { ChatEvent, CustumerServiceEvent, JoinRoomEvent } from './chat.interface';
 
 @WebSocketGateway({
     cors: {
@@ -18,31 +18,37 @@ import { Controller } from '@nestjs/common';
     },
   })
 export class ChatCallGateway implements OnGatewayConnection, OnGatewayDisconnect {
-    @WebSocketServer() server: Server = new Server()
+  constructor(private chatService: ChatCallService) {}
+  
+  @WebSocketServer() server: Server = new Server()
 
   private logger = new Logger('ChatGateway')
 
   @SubscribeMessage('chat')
-  async handleCustumerChatEvent(@MessageBody() payload: any): Promise<any> {
-    this.logger.log(payload)
-    this.server.to(payload.roomName).emit('chat', payload)
-    return payload
+  async handleCustumerChatEvent(@MessageBody() event: ChatEvent): Promise<any> {
+    this.logger.log(event)  
+    this.chatService.addMessageToRoom(event.roomName, event.message);
+    const eventMessage: CustumerServiceEvent = await this.chatService.getRoomDetails(event.roomName);
+    this.server.to('custumerServiceRoom').emit('chat', eventMessage)
+    return event
   }
 
   @SubscribeMessage('closeChat')
-  async handleCloseCustumerChatEvent(@MessageBody() payload: any): Promise<any> {
-    this.logger.log(payload)
-    this.server.to(payload.roomName).emit('chat', payload)
-    return payload
+  async handleCloseCustumerChatEvent(@MessageBody() event: any): Promise<any> {
+    this.logger.log(event);
+    this.server.to(event.roomName).emit('chat', {});
+    await this.chatService.removeRoom(event.roomName)
+    return event
   }
 
   @SubscribeMessage('join_room')
-  async handleSetClientDataEvent(@MessageBody() payload: {socketId: string ,roomName: string} ) {
-    if (payload.socketId) {
-      this.logger.log(`${payload.socketId} is joining ${payload.roomName}`)
-      await this.server.in(payload.socketId).socketsJoin(payload.roomName)
-      // this.server.to(payload.roomName).emit('chat', payload)
-    //   await this.userService.addUserToRoom(payload.roomName, payload.user)
+  async handleSetClientDataEvent(@MessageBody() event: any) {
+    this.logger.log(`${event.socketId} is joining ${event.roomName}`);
+    if (event.socketId) {
+      await this.server.in(event.socketId).socketsJoin(event.roomName);
+      if (event.user){
+        await this.chatService.addUserToRoom(event.roomName, event.user)
+      }
     }
   }
 
@@ -51,7 +57,7 @@ export class ChatCallGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   async handleDisconnect(socket: Socket): Promise<void> {
-    // await this.userService.removeUserFromAllRooms(socket.id)
+    await this.chatService.removeRoom(socket.id)
     this.logger.log(`Socket disconnected: ${socket.id}`)
   }
 }

@@ -5,9 +5,10 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useNavigate, useParams } from "react-router-dom";
-
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import socket from '../services/Socket';
+import { Socket, io } from 'socket.io-client';
+import Config from '../Config';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -56,8 +57,6 @@ const useStyles = makeStyles((theme: Theme) =>
         width: '30%',
         textTransform: 'none'
     }
-
-
   }),
 );
 
@@ -68,16 +67,29 @@ const ChatPage: React.FC = ({ }) => {
     const navigate = useNavigate();
     const { roomName } = useParams();
     const maxLength = 200;
+    const [socket, setSocket] = useState<Socket>()
+
 
     useEffect(() => {
-        socket.on('closeChat', (message: any) => {
-            console.log("close chat");
-            onCloseChat();
-        });
+        const socket = io(Config.url);
+        
+
+        socket.on('connect', () => {
+            setSocket(socket)
+            socket.on('chat', (message: any) => {
+                console.log("close chat");
+                onCloseChat();
+            });
+        })
+        
+        return () => {
+            socket.disconnect()
+        }
+       
     },[])
 
-    const onSendMessageClick = () => {
-        socket.emit('chat',{ roomName: roomName, message: message })
+    const onSendMessageClick = () => { 
+        socket.emit('chat',{ roomName: roomName, message: message })    
     }
 
     const onChange = (event: any) => {
@@ -100,7 +112,7 @@ const ChatPage: React.FC = ({ }) => {
             <div className={classes.root}>
                 <div className={classes.inputForm}>
                     <span className={classes.inputText}>Message</span>
-                    <div >
+                    <div>
                         <TextareaAutosize
                             maxLength={maxLength}
                             onChange={onChange}
