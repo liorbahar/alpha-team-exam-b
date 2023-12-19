@@ -7,6 +7,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { useNavigate, useParams } from "react-router-dom";
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import SocketContext from '../context/SocketContext';
+import Config from '../Config';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -61,7 +62,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const ChatPage: React.FC = ({ }) => {
     const classes = useStyles();
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState<string>('');
     const navigate = useNavigate();
     const { roomName } = useParams();
     const maxLength = 200;
@@ -82,7 +83,7 @@ const ChatPage: React.FC = ({ }) => {
     }
 
     const onCloseChat = () => {
-        socket.emit('closeChat', { roomName: 'custumerServiceRoom', chatRoom: roomName })
+        socket.emit('closeChat', { roomName: Config.custumerServiceRoom , chatRoom: roomName })
         navigateHome()
     }
 

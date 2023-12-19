@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import ChatTable from './ChatTable.component';
 import Typography from '@material-ui/core/Typography';

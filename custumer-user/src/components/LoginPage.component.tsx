@@ -121,7 +121,7 @@ const LoginPage: React.FC = ({ }) => {
             emailValid: emailRef.current.value?.length > 0,
         }
         setValidations(data)
-        const isFormValid: boolean = Object.values(data).some((isValid: boolean) => isValid === true); 
+        const isFormValid: boolean = Object.values(data).every((isValid: boolean) => isValid === true); 
         return isFormValid;
     }
 

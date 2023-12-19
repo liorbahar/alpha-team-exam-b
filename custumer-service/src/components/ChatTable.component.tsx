@@ -92,7 +92,7 @@ const ChatTable = ({  }) => {
     listenToActiveChats();
 
     return () => {
-      if (socket){
+      if (socket) {
         socket.disconnect();
       }
     }
@@ -103,38 +103,31 @@ const ChatTable = ({  }) => {
 
     currentSocket.on('connect', () => {  
       setSocket(currentSocket);  
-       const eventData = {
+      const eventData = {
         socketId: currentSocket.id,
-        roomName: 'custumerServiceRoom'
+        roomName: Config.custumerServiceRoom
       }
       currentSocket.emit('join_room', eventData);
+      
       currentSocket.on('chat', (message: ActievChat) => {
         setActiveChats(chats => ({...chats, [message.roomName]: message}));
         setFiltersActiveChats(chats => ({...chats, [message.roomName]: message}));
-
-        console.log(activeChats)
-        console.log(filtersactiveChats)
       });
 
       currentSocket.on('closeChat', (message: { roomName: string, chatRoom: string}) => {
         removeChats(message.chatRoom);
-        
       });
     });
   }
 
   const fetchAllActiveChats = () => {
-    getAllActiveChats().then((activeChats: ActievChat[]) => {
+    getAllActiveChats()
+    .then((activeChats: ActievChat[]) => {
       const originalChats: ChatMap = {};
-      activeChats.forEach((activeChat: ActievChat) => {
-        originalChats[activeChat.roomName] = activeChat;
-      })
+      activeChats.forEach((activeChat: ActievChat) => originalChats[activeChat.roomName] = activeChat);
 
       const filtersChats: ChatMap = {};
-      activeChats.forEach((activeChat: ActievChat) => {
-        filtersChats[activeChat.roomName] = activeChat;
-      })
-
+      activeChats.forEach((activeChat: ActievChat) => filtersChats[activeChat.roomName] = activeChat);
 
       setActiveChats(originalChats)
       setFiltersActiveChats(filtersChats)
@@ -169,45 +162,38 @@ const ChatTable = ({  }) => {
     {
       setFiltersActiveChats(activeChats);
       return;
-    } 
+    }
+
     const filteredChats = Object.values(activeChats).filter(actievChat => actievChat.email.includes(searchedEmail))
     const newChats: ChatMap = {};
-    filteredChats.forEach(chat => {
-      newChats[chat.roomName] = chat
-    })
+    filteredChats.forEach(chat => newChats[chat.roomName] = chat);
     setFiltersActiveChats(newChats)
   }
 
   const onDateFilter = () => {
     setOrderBy('date');
-    const newChats: ChatMap = {};
-    let sortedList = []
-    if (order === 'asc') {
-      setOrder('desc')
-      sortedList = Object.values(filtersactiveChats).sort((a, b) => {
-        const datetimeA = new Date(a.startDate).getTime();
-        const datetimeB = new Date(b.startDate).getTime();
-        
-        return datetimeB - datetimeA;
-      });
-
-    } else {
-      setOrder('asc')
-      sortedList = Object.values(filtersactiveChats).sort((a, b) => {
-        const datetimeA = new Date(a.startDate).getTime();
-        const datetimeB = new Date(b.startDate).getTime();
-        
-        return datetimeA - datetimeB;
-      });
-    }
-
-    sortedList.forEach(chat => {
-      newChats[chat.roomName] = chat
-    })
+    const newOrderType: 'asc' | 'desc' = (order === 'asc') ? 'desc' : 'asc'
+    const newChats: ChatMap = orderByDate(newOrderType)
+    setOrder(newOrderType)
     setFiltersActiveChats(newChats);
   }
 
-  
+  const orderByDate = (orderType: string) => {
+    const sortedList = Object.values(filtersactiveChats).sort((a, b) => {
+      const datetimeA = new Date(a.startDate).getTime();
+      const datetimeB = new Date(b.startDate).getTime();
+      
+      if (orderType === "desc") {
+        return datetimeB - datetimeA; 
+      }
+      // Asc order
+      return datetimeA - datetimeB;
+    });
+
+    const newChats: ChatMap = {};
+    sortedList.forEach(chat => newChats[chat.roomName] = chat);
+    return newChats;
+  }
 
   return (
     <div className={classes.root}>
