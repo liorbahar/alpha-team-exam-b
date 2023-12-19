@@ -1,5 +1,4 @@
 import { Controller, Get } from '@nestjs/common';
-import { Address } from './address.entities';
 import { AddressService } from './address.service';
 
 @Controller('address')

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -6,9 +6,7 @@ import Button from '@material-ui/core/Button';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useNavigate, useParams } from "react-router-dom";
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
-import socket from '../services/Socket';
-import { Socket, io } from 'socket.io-client';
-import Config from '../Config';
+import SocketContext from '../context/Socket.context';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -67,25 +65,13 @@ const ChatPage: React.FC = ({ }) => {
     const navigate = useNavigate();
     const { roomName } = useParams();
     const maxLength = 200;
-    const [socket, setSocket] = useState<Socket>()
-
+    const { socket } = useContext(SocketContext);
 
     useEffect(() => {
-        const socket = io(Config.url);
-        
-
-        socket.on('connect', () => {
-            setSocket(socket)
-            socket.on('chat', (message: any) => {
-                console.log("close chat");
-                onCloseChat();
-            });
-        })
-        
-        return () => {
-            socket.disconnect()
-        }
-       
+        socket.on('closeChat', (message: any) => {
+            console.log("close chat");
+            onCloseChat();
+        });
     },[])
 
     const onSendMessageClick = () => { 

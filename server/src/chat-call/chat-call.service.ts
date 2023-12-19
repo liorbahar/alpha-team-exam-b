@@ -3,51 +3,42 @@ import { CustumerServiceEvent, Room, User } from './chat.interface';
 
 @Injectable()
 export class ChatCallService {
-    private rooms: Room[] = []
+    private rooms: Room[] = [];
 
   async addRoom(roomName: string, host: User): Promise<void> {
     const room: number = await this.getRoomByName(roomName)
     if (room === -1) {
         const room: Room = {
             name: roomName,
-            startDate: new Date().toString(),
+            startDate: new Date().toLocaleString(),
             users: [host],
             host: host,
             messages: []
         }
-        await this.rooms.push(room)
+        await this.rooms.push(room);
     }
   }
 
   async addMessageToRoom(roomName: string, message: string): Promise<void> {
-    const roomIndex: number = await this.getRoomByName(roomName)
+    const roomIndex: number = await this.getRoomByName(roomName);
     if (roomIndex !== -1) {
-        this.rooms[roomIndex].messages.push(message)
+        this.rooms[roomIndex].messages.push(message);
     }
   }
 
   async getRoomDetails(roomName: string): Promise<CustumerServiceEvent> {
-    const roomIndex: number = await this.getRoomByName(roomName)
+    const roomIndex: number = await this.getRoomByName(roomName);
     if (roomIndex !== -1) {
         const room: Room = this.rooms[roomIndex];
-        return {
-            roomName: room.name,
-            firstName: room.host.firstName,
-            lastName: room.host.lastName,
-            email: room.host.email,
-            address: room.host.address,
-            startDate: room.startDate,
-            totalMessage: room.messages.length,
-            lastMesage: room.messages[room.messages.length - 1]
-        }     
+        return this.parseRoom(room); 
     }
      
   }
 
   async removeRoom(roomName: string): Promise<void> {
-    const findRoom = await this.getRoomByName(roomName)
+    const findRoom: number = await this.getRoomByName(roomName);
     if (findRoom !== -1) {
-      this.rooms = this.rooms.filter((room) => room.name !== roomName)
+      this.rooms = this.rooms.filter((room) => room.name !== roomName);
     }
   }
 
@@ -60,12 +51,25 @@ export class ChatCallService {
     }
   }
 
-  async getRooms(): Promise<Room[]> {
-    return this.rooms
+  async getRooms(): Promise<CustumerServiceEvent[]> {
+    return this.rooms.map(room => this.parseRoom(room))
   } 
 
+  private parseRoom(room: Room): CustumerServiceEvent{
+    return {
+      roomName: room.name,
+      firstName: room.host.firstName,
+      lastName: room.host.lastName,
+      email: room.host.email,
+      address: room.host.address,
+      startDate: room.startDate,
+      totalMessage: room.messages.length,
+      lastMesage: room.messages[room.messages.length - 1]
+    } 
+  }
+
   private async getRoomByName(roomName: string): Promise<number> {
-    const roomIndex = this.rooms.findIndex((room) => room?.name === roomName)
+    const roomIndex: number = this.rooms.findIndex((room) => room?.name === roomName)
     return roomIndex
   }
 }

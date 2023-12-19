@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ChatCallController } from './chat-call.gateway';
+import { ChatCallController } from './chat-call.controller';
 
 describe('ChatCallController', () => {
   let controller: ChatCallController;

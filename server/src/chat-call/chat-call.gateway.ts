@@ -22,7 +22,7 @@ export class ChatCallGateway implements OnGatewayConnection, OnGatewayDisconnect
   
   @WebSocketServer() server: Server = new Server()
 
-  private logger = new Logger('ChatGateway')
+  private logger = new Logger('ChatCallGateway')
 
   @SubscribeMessage('chat')
   async handleCustumerChatEvent(@MessageBody() event: ChatEvent): Promise<any> {
@@ -36,7 +36,7 @@ export class ChatCallGateway implements OnGatewayConnection, OnGatewayDisconnect
   @SubscribeMessage('closeChat')
   async handleCloseCustumerChatEvent(@MessageBody() event: any): Promise<any> {
     this.logger.log(event);
-    this.server.to(event.roomName).emit('chat', {});
+    this.server.to(event.roomName).emit('closeChat', {});
     await this.chatService.removeRoom(event.roomName)
     return event
   }

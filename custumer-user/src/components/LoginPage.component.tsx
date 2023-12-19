@@ -1,17 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import { useNavigate } from "react-router-dom";
-import socket from '../services/Socket';
 import Select from "@mui/material/Select";
 import { MenuItem, OutlinedInput } from '@material-ui/core';
 import { getAllAddresses } from '../services/Address.service';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import { Socket, io } from 'socket.io-client';
-import Config from '../Config';
+import SocketContext from '../context/Socket.context';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -80,17 +78,10 @@ const LoginPage: React.FC = ({ }) => {
         lastNameNameValid: true,
         emailValid: true,
     });
-    const [socket, setSocket] = useState<Socket>()
-
+    const { socket, joinRoom, disconnect } = useContext(SocketContext);
 
     useEffect(() => {
-        const socket = io(Config.url);
-        setSocket(socket)
-        setSocket(socket);
         fetchAllAddress();
-        return () => {
-            socket.disconnect()
-        }
     },[])
 
     const fetchAllAddress = () => {
@@ -117,9 +108,9 @@ const LoginPage: React.FC = ({ }) => {
                     address: address
                 }
             }
-        socket.emit('join_room', eventData);
-        navigate(`/chat/${getRoomName()}`);
-        setIsLoading(false);
+            joinRoom(eventData)
+            navigate(`/chat/${getRoomName()}`);
+            setIsLoading(false);
         }  
     }
 
