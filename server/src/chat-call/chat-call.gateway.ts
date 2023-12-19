@@ -10,7 +10,7 @@ import {
   
   import { Server, Socket } from 'socket.io'
 import { ChatCallService } from './chat-call.service';
-import { ChatEvent, CustumerServiceEvent, JoinRoomEvent } from './chat.interface';
+import { ChatEvent, CustumerServiceEvent, User } from './chat.interface';
 
 @WebSocketGateway({
     cors: {
@@ -34,7 +34,7 @@ export class ChatCallGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   @SubscribeMessage('closeChat')
-  async handleCloseCustumerChatEvent(@MessageBody() event: any): Promise<any> {
+  async handleCloseCustumerChatEvent(@MessageBody() event: { roomName: string, chatRoom: string }): Promise<any> {
     this.logger.log(event);
     this.server.to(event.roomName).emit('closeChat', { roomName: event.roomName, chatRoom: event.chatRoom });
     await this.chatService.removeRoom(event.chatRoom)
@@ -42,7 +42,7 @@ export class ChatCallGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   @SubscribeMessage('join_room')
-  async handleSetClientDataEvent(@MessageBody() event: any) {
+  async handleSetClientDataEvent(@MessageBody() event: { socketId: string, roomName: string, user: User} ) {
     this.logger.log(`${event.socketId} is joining ${event.roomName}`);
     if (event.socketId) {
       await this.server.in(event.socketId).socketsJoin(event.roomName);
